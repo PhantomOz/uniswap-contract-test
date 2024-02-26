@@ -1,13 +1,7 @@
-# Sample Hardhat Project
+# UNISWAP V2 MAINNET FORKING
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+This task is a test from the Web3Bridge CX Elimination Test.
 
-Try running some of the following tasks:
+#### Here Is the Result
 
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.ts
-```
+![Mainnet Forking result](./result.png)

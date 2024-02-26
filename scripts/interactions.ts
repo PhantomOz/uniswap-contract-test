@@ -1,21 +1,19 @@
 import { ethers } from "hardhat";
-import helpers from "@nomicfoundation/hardhat-toolbox/network-helpers";
 
 const main = async () => {
   const USDCAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
   const DAIAddress = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
-  const wethAddress = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+  const PairAddress = "0xAE461cA67B15dc8dc81CE7615e0320dA1A9aB8D5";
 
   const UNIRouter = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
 
   const USDCHolder = "0xf584f8728b874a6a5c7a8d4d387c9aae9172d621";
 
-  await helpers.impersonateAccount(USDCHolder);
-  const impersonatedSigner = await ethers.getSigner(USDCHolder);
+  const impersonatedSigner = await ethers.getImpersonatedSigner(USDCHolder);
 
   const USDC = await ethers.getContractAt("IERC20", USDCAddress);
   const DAI = await ethers.getContractAt("IERC20", DAIAddress);
-  const WETH = await ethers.getContractAt("IERC20", wethAddress);
+  const PAIR = await ethers.getContractAt("IERC20", PairAddress);
 
   const ROUTER = await ethers.getContractAt("IUniswap", UNIRouter);
 
@@ -37,16 +35,16 @@ const main = async () => {
   );
   await approveDaiTx.wait();
   console.log("DAI spending approved.");
-
   
-  const amountOut = ethers.parseUnits("10", 6); // Example amount
+  const amountOutUSDC = ethers.parseUnits("1000", 6);
+  const amountOutDAI = ethers.parseUnits("1000", 18);
 
   console.log("Adding liquidity...");
   const addLiqTx = await ROUTER.connect(impersonatedSigner).addLiquidity(
     USDCAddress,
     DAIAddress,
-    amountOut, 
-    amountOut, 
+    amountOutUSDC, 
+    amountOutDAI, 
     0, 
     0, 
     impersonatedSigner.address,
@@ -55,11 +53,17 @@ const main = async () => {
   await addLiqTx.wait();
   console.log("Liquidity added.");
 
+  const approvePair = await PAIR.connect(impersonatedSigner).approve(
+    UNIRouter,
+    ethers.MaxUint256
+  );
+  await approvePair.wait();
+
   console.log("Removing liquidity...");
   const removeLiqTx = await ROUTER.connect(impersonatedSigner).removeLiquidity(
     USDCAddress,
     DAIAddress,
-    ethers.parseUnits("1", 6),
+    ethers.parseUnits("1000", 6),
     0,
     0,
     impersonatedSigner.address,
